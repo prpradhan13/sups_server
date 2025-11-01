@@ -100,7 +100,7 @@ export const loginUser = async (req, res) => {
             return res.status(401).json({ message: "Invalid credentials!" });
         }
 
-        const tokens = await generateAccessAndRefreshToken(user._id);
+        const { accessToken, refreshToken } = await generateAccessAndRefreshToken(user._id);
         const userData = await User.findById(user._id).select("-password -refreshToken");
 
         const options = {
@@ -112,8 +112,8 @@ export const loginUser = async (req, res) => {
 
         return res
             .status(200)
-            .cookie("refreshToken", tokens.refreshToken, options)
-            .cookie("accessToken", tokens.accessToken, options)
+            .cookie("accessToken", accessToken, options)
+            .cookie("refreshToken", refreshToken, options)
             .json({ message: "Login successful", user: userData });
 
     } catch (error) {

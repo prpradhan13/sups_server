@@ -5,6 +5,7 @@ import morgan from "morgan";
 import cnnectDB from "./config/db.config.js";
 import userRoute from "./routes/user.route.js";
 import productRoute from "./routes/product.route.js";
+import cookieParser from "cookie-parser";
 
 dotenv.config({
     path: "./.env"
@@ -24,6 +25,7 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev")); //dev -> combined
+app.use(cookieParser());
 
 app.use("/api/v1/users", userRoute);
 app.use("/api/v1/products", productRoute);
