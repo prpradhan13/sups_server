@@ -2,10 +2,11 @@ import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
 import morgan from "morgan";
+import cookieParser from "cookie-parser";
 import cnnectDB from "./config/db.config.js";
 import userRoute from "./routes/user.route.js";
+import categoryRoute from "./routes/category.route.js";
 import productRoute from "./routes/product.route.js";
-import cookieParser from "cookie-parser";
 
 dotenv.config({
     path: "./.env"
@@ -28,6 +29,7 @@ app.use(morgan("dev")); //dev -> combined
 app.use(cookieParser());
 
 app.use("/api/v1/users", userRoute);
+app.use("/api/v1/categories", categoryRoute);
 app.use("/api/v1/products", productRoute);
 
 cnnectDB().then(() => {

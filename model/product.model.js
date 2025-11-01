@@ -61,10 +61,18 @@ const productSchema = new mongoose.Schema(
       },
     ],
     supplier: {
-      name: String,
+      name: {
+        type: String,
+        required: true,
+        lowercase: true,
+        trim: true,
+      },
       contactEmail: String,
       phone: String,
-      address: String,
+      address: {
+        type: String,
+        trim: true,
+      },
     },
     slug: {
       type: String,
@@ -102,13 +110,42 @@ const productSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-productSchema.pre("save", function (next) {
-  this.finalPrice = this.price - (this.price * this.discount) / 100;
+productSchema.pre("save", async function (next) {
+  this.finalPrice = Number(this.price - (this.price * this.discount) / 100).toFixed(0);
+  next();
+});
+
+productSchema.pre("validate", async function () {
+  if (this.isModified("name")) {
+    const baseSlug = slugify(this.name, { lower: true, strict: true });
+    let uniqueSlug = baseSlug;
+    let counter = 1;
+
+    // Check if slug already exists
+    while (await mongoose.models.Product.findOne({ slug: uniqueSlug })) {
+      uniqueSlug = `${baseSlug}-${counter++}`;
+    }
+
+    this.slug = uniqueSlug;
+  }
+});
+
+productSchema.pre("findOneAndUpdate", function (next) {
+  const update = this.getUpdate();
+  if (update.price || update.discount) {
+    const price = update.price ?? this._update.$set?.price;
+    const discount = update.discount ?? this._update.$set?.discount;
+    if (price != null && discount != null) {
+      this.set({ finalPrice: price - (price * discount) / 100 });
+    }
+  }
   next();
 });
 
 productSchema.pre("save", function (next) {
-  this.slug = slugify(this.name, { lower: true, strict: true });
+  if (!this.metaTitle) this.metaTitle = `${this.name} | ${this.brand}`;
+  if (!this.metaDescription && this.description)
+    this.metaDescription = this.description.slice(0, 150);
   next();
 });
 
