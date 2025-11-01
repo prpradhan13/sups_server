@@ -4,6 +4,7 @@ import cors from "cors";
 import morgan from "morgan";
 import cnnectDB from "./config/db.config.js";
 import userRoute from "./routes/user.route.js";
+import productRoute from "./routes/product.route.js";
 
 dotenv.config({
     path: "./.env"
@@ -14,7 +15,7 @@ const PORT = process.env.PORT;
 const corsOptions = {
     origin: process.env.NODE_ENV === "development" ? process.env.DEV_ORIGIN : process.env.PRODUCTION_ORIGIN,
     credentials: true,
-    // methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     // preflightContinue: false,
     // optionsSuccessStatus: 204
 };
@@ -25,6 +26,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev")); //dev -> combined
 
 app.use("/api/v1/users", userRoute);
+app.use("/api/v1/products", productRoute);
 
 cnnectDB().then(() => {
     app.get("/", (req, res) => {

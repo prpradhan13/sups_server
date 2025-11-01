@@ -1,7 +1,8 @@
 import mongoose from "mongoose";
 import slugify from "slugify";
 
-const productSchema = new mongoose.Schema({
+const productSchema = new mongoose.Schema(
+  {
     name: {
       type: String,
       required: true,
@@ -15,9 +16,9 @@ const productSchema = new mongoose.Schema({
       trim: true,
     },
     category: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Category",
-        required: true,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Category",
+      required: true,
     },
     description: {
       type: String,
@@ -96,17 +97,19 @@ const productSchema = new mongoose.Schema({
     isFeatured: {
       type: Boolean,
       default: false,
-    }
-}, { timestamps: true });
+    },
+  },
+  { timestamps: true }
+);
 
-productSchema.pre("save", function(next){
-    this.finalPrice = this.price - (this.price * this.discount) / 100;
-    next();
+productSchema.pre("save", function (next) {
+  this.finalPrice = this.price - (this.price * this.discount) / 100;
+  next();
 });
 
-productSchema.pre("save", function(next){
-    this.slug = slugify(this.name, { lower: true, strict: true });
-    next();
+productSchema.pre("save", function (next) {
+  this.slug = slugify(this.name, { lower: true, strict: true });
+  next();
 });
 
 export default mongoose.model("Product", productSchema);
